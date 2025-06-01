@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo "Building Frontend..."
+
+cd frontend
+
+if [ ! -d "node_modules" ] || [ "$1" = "--with-deps" ]; then
+  echo "Installing dependencies..."
+  npm install
+fi
+
+echo "Running build..."
+npm run build
+
+if [ $? -eq 0 ]; then
+  echo "Build successful!"
+  
+  if [ ! -d "../backend/static" ]; then
+    mkdir -p ../backend/static
+    echo "Created static directory in backend folder"
+  fi
+  
+  if [ -d "dist" ] && [ ! -d "../backend/static" ]; then
+    echo "Copying build output to backend/static..."
+    cp -r dist/* ../backend/static/
+  fi
+else
+  echo "Build failed!"
+  exit 1
+fi
+
+echo "Build process completed!"
+
+cd ..
+
+echo "Frontend build complete!"
