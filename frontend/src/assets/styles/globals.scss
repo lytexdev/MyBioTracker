@@ -1,0 +1,454 @@
+// CSS Custom Properties (Variables)
+:root {
+    // Colors
+    --primary: #3b82f6;
+    --primary-light: #dbeafe;
+    --primary-dark: #1d4ed8;
+    --secondary: #64748b;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --info: #06b6d4;
+
+    // Text Colors
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+
+    // Background Colors
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+
+    // Border Colors
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+
+    // Spacing (using 8px grid system)
+    --space-xs: 0.25rem; // 4px
+    --space-sm: 0.5rem; // 8px
+    --space-md: 0.75rem; // 12px
+    --space-lg: 1rem; // 16px
+    --space-xl: 1.5rem; // 24px
+    --space-2xl: 2rem; // 32px
+    --space-3xl: 3rem; // 48px
+
+    // Border Radius
+    --radius: 0.375rem; // 6px
+    --radius-sm: 0.25rem; // 4px
+    --radius-md: 0.5rem; // 8px
+    --radius-lg: 0.75rem; // 12px
+    --radius-xl: 1rem; // 16px
+
+    // Shadows
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+    // Typography
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    --font-mono: 'Fira Code', 'Monaco', 'Cascadia Code', 'Segoe UI Mono', 'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+
+    // Transitions
+    --transition: all 0.2s ease-in-out;
+    --transition-fast: all 0.1s ease-in-out;
+    --transition-slow: all 0.3s ease-in-out;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+
+        --border: #334155;
+        --border-light: #475569;
+    }
+}
+
+// CSS Reset & Base Styles
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+
+h1 {
+    font-size: 2.25rem;
+}
+
+h2 {
+    font-size: 1.875rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+h4 {
+    font-size: 1.25rem;
+}
+
+h5 {
+    font-size: 1.125rem;
+}
+
+h6 {
+    font-size: 1rem;
+}
+
+p {
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition);
+
+    &:hover {
+        color: var(--primary-dark);
+    }
+}
+
+// Form Elements
+.form-label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: var(--transition);
+
+    &:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    &:disabled {
+        background: var(--bg-secondary);
+        color: var(--text-muted);
+        cursor: not-allowed;
+    }
+
+    &::placeholder {
+        color: var(--text-muted);
+    }
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-select {
+    cursor: pointer;
+
+    &:focus {
+        cursor: text;
+    }
+}
+
+// Buttons
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    // Primary Button
+    &.btn-primary {
+        background: var(--primary);
+        color: white;
+
+        &:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+    }
+
+    // Outline Button
+    &.btn-outline {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border-color: var(--border);
+
+        &:hover:not(:disabled) {
+            background: var(--bg-secondary);
+            border-color: var(--primary);
+        }
+    }
+
+    // Secondary Button
+    &.btn-secondary {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+
+        &:hover:not(:disabled) {
+            background: var(--bg-tertiary);
+        }
+    }
+
+    // Danger Button
+    &.btn-danger {
+        background: var(--error);
+        color: white;
+
+        &:hover:not(:disabled) {
+            background: #dc2626;
+        }
+    }
+
+    // Success Button
+    &.btn-success {
+        background: var(--success);
+        color: white;
+
+        &:hover:not(:disabled) {
+            background: #059669;
+        }
+    }
+
+    // Size Variants
+    &.btn-sm {
+        padding: var(--space-sm) var(--space-md);
+        font-size: 0.75rem;
+    }
+
+    &.btn-lg {
+        padding: var(--space-lg) var(--space-xl);
+        font-size: 1rem;
+    }
+}
+
+// Cards
+.card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+
+    .card-header {
+        padding: var(--space-lg) var(--space-xl);
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-secondary);
+
+        h3 {
+            margin: 0;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+        }
+    }
+
+    .card-body {
+        padding: var(--space-xl);
+    }
+
+    .card-footer {
+        padding: var(--space-lg) var(--space-xl);
+        border-top: 1px solid var(--border);
+        background: var(--bg-secondary);
+    }
+}
+
+// Utilities
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.hidden {
+    display: none;
+}
+
+.block {
+    display: block;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.mb-1 {
+    margin-bottom: var(--space-sm);
+}
+
+.mb-2 {
+    margin-bottom: var(--space-md);
+}
+
+.mb-3 {
+    margin-bottom: var(--space-lg);
+}
+
+.mb-4 {
+    margin-bottom: var(--space-xl);
+}
+
+.mt-0 {
+    margin-top: 0;
+}
+
+.mt-1 {
+    margin-top: var(--space-sm);
+}
+
+.mt-2 {
+    margin-top: var(--space-md);
+}
+
+.mt-3 {
+    margin-top: var(--space-lg);
+}
+
+.mt-4 {
+    margin-top: var(--space-xl);
+}
+
+// Responsive helpers
+@media (max-width: 768px) {
+    .mobile-hidden {
+        display: none;
+    }
+
+    .desktop-hidden {
+        display: block;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-hidden {
+        display: block;
+    }
+
+    .desktop-hidden {
+        display: none;
+    }
+}
+
+// Loading animation
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+// Focus visible for accessibility
+*:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+// Smooth scrolling for hash links
+html {
+    scroll-padding-top: 80px;
+}

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  frontend-builder:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: mybiotracker_frontend_builder
+    volumes:
+      - frontend_dist:/dist
+
+  app:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: mybiotracker_dev
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///data/mybiotracker_dev.db
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=dev-secret-key-change-in-prod
+      - ENVIRONMENT=development
+    volumes:
+      - ./backend:/app
+      - dev_data:/app/data
+      - frontend_dist:/app/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - frontend-builder
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  redis:
+    image: redis:7-alpine
+    container_name: mybiotracker_redis_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+
+volumes:
+  dev_data:
+  redis_dev_data:
+  frontend_dist:

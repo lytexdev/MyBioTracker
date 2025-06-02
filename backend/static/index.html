@@ -1,14 +1,33 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MyBioTracker</title>
-    <script type="module" crossorigin src="/assets/index-mDMuIs86.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BGnqF1DV.css">
-  </head>
-  <body>
-    <div id="app"></div>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyBioTracker - Nutrition Tracking</title>
+  <meta name="description" content="Local-first nutrition and biohacking tracker with privacy focus">
+
+  <!-- Security Headers -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#22c55e">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Preload Fonts -->
+  <link rel="preload" href="/assets/fonts/Montserrat-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Montserrat-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Montserrat-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <script type="module" crossorigin src="/assets/index-c7tHlMAa.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DqFqRo2x.css">
+</head>
+
+<body>
+  <div id="app"></div>
+</body>
+
 </html>
