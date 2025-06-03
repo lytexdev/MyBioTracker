@@ -81,22 +81,21 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import Icon from '@/components/ui/Icon.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const toastStore = useToastStore()
 
 const showUserMenu = ref(false)
 
-const user = computed(() => userStore.user)
+const user = computed(() => authStore.user)
 
-const handleLogout = () => {
-  userStore.logout()
+const handleLogout = async () => {
+  await authStore.logout()
   toastStore.info('You have been signed out')
-  router.push('/auth/login')
 }
 
 const closeUserMenu = (event) => {

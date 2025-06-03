@@ -13,7 +13,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Add auth token if available
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -32,8 +32,9 @@ api.interceptors.response.use(
   (error) => {
     // Handle common errors
     if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
-      localStorage.removeItem("token");
+      // Unauthorized - clear tokens and redirect to login
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
 
       // Only redirect if not already on auth pages
       if (!window.location.pathname.startsWith("/auth")) {

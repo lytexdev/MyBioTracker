@@ -24,4 +24,5 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
   },
+  assetsInclude: ['**/*.svg']
 });

@@ -9,6 +9,7 @@ export const useAuthStore = defineStore("auth", () => {
   const refreshToken = ref(localStorage.getItem("refresh_token"));
   const loading = ref(false);
   const error = ref(null);
+  const initialized = ref(false);
 
   const isAuthenticated = computed(() => !!user.value && !!accessToken.value);
   const isAdmin = computed(() => user.value?.is_admin || false);
@@ -32,6 +33,22 @@ export const useAuthStore = defineStore("auth", () => {
     delete api.defaults.headers.common["Authorization"];
   };
 
+  const initialize = async () => {
+    if (initialized.value) return;
+    
+    try {
+      if (accessToken.value) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${accessToken.value}`;
+        await checkAuth();
+      }
+    } catch (error) {
+      console.error("Auth initialization failed:", error);
+      clearTokens();
+    } finally {
+      initialized.value = true;
+    }
+  };
+
   const login = async (credentials) => {
     try {
       loading.value = true;
@@ -43,7 +60,6 @@ export const useAuthStore = defineStore("auth", () => {
       setTokens({ access_token, refresh_token });
       user.value = userData;
 
-      router.push({ name: "Dashboard" });
       return true;
     } catch (err) {
       error.value = err.response?.data?.detail || "Login failed";
@@ -75,7 +91,9 @@ export const useAuthStore = defineStore("auth", () => {
 
   const logout = async () => {
     clearTokens();
-    router.push({ name: "Login" });
+    if (router.currentRoute.value.path !== "/auth/login") {
+      router.push({ name: "Login" });
+    }
   };
 
   const checkAuth = async () => {
@@ -164,8 +182,10 @@ export const useAuthStore = defineStore("auth", () => {
     user,
     loading,
     error,
+    initialized,
     isAuthenticated,
     isAdmin,
+    initialize,
     login,
     register,
     logout,

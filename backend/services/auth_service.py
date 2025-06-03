@@ -55,7 +55,7 @@ class AuthService:
         
         if user.is_2fa_enabled and user.totp_secret:
             if not totp_code or not self.verify_totp(user.totp_secret, totp_code):
-                if not self.verify_backup_code(user, totp_code):
+                if not await self.verify_backup_code(db, user, totp_code):
                     return None
         
         # Update last login
@@ -124,7 +124,7 @@ class AuthService:
         totp = pyotp.TOTP(secret)
         return totp.verify(token, valid_window=1)
     
-    def verify_backup_code(self, user: User, code: str) -> bool:
+    async def verify_backup_code(self, db: AsyncSession, user: User, code: str) -> bool:
         if not user.backup_codes or not code:
             return False
         
@@ -133,6 +133,7 @@ class AuthService:
             if code.upper() in backup_codes:
                 backup_codes.remove(code.upper())
                 user.backup_codes = json.dumps(backup_codes)
+                await db.commit()
                 return True
         except json.JSONDecodeError:
             pass
@@ -152,3 +153,67 @@ class AuthService:
         user.backup_codes = None
         await db.commit()
         await db.refresh(user)
+    
+    async def handle_failed_login(self, db: AsyncSession, user: User):
+        user.failed_login_attempts += 1
+        
+        # Lock account after 5 failed attempts
+        if user.failed_login_attempts >= 5:
+            user.locked_until = datetime.utcnow() + timedelta(minutes=15)
+        
+        await db.commit()
+    
+    async def handle_successful_login(self, db: AsyncSession, user: User):
+        user.failed_login_attempts = 0
+        user.locked_until = None
+        user.last_login = datetime.utcnow()
+        await db.commit()
+    
+    async def simulate_auth_delay(self):
+        # Simulate authentication delay to prevent timing attacks
+        await asyncio.sleep(0.5)
+
+# FastAPI Dependencies
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from database import get_session
+
+security = HTTPBearer()
+auth_service = AuthService()
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_session)
+) -> User:
+    """Get current authenticated user from JWT token"""
+    token = credentials.credentials
+    
+    # Verify token
+    payload = auth_service.verify_token(token, "access")
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Get user email from token (consistent with login endpoint)
+    user_email = payload.get("sub")
+    if not user_email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Get user by email (consistent with how token was created)
+    user = await auth_service.get_user_by_email(db, user_email)
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    return user

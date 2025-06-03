@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { useUserStore } from "@/stores/user";
+import { useAuthStore } from "@/stores/auth";
 
 // Layouts
-import AuthLayout from "@/components/layout/AuthLayout.vue";
-import DashboardLayout from "@/components/layout/DashboardLayout.vue";
+import AuthLayout from "@/layouts/AuthLayout.vue";
+import DashboardLayout from "@/layouts/DashboardLayout.vue";
 
 // Auth views
 import Login from "@/views/auth/Login.vue";
@@ -18,6 +18,7 @@ import Caffeine from "@/views/caffeine/Caffeine.vue";
 import AddCaffeine from "@/views/caffeine/AddCaffeine.vue";
 import Profile from "@/views/profile/Profile.vue";
 import Reports from "@/views/reports/Reports.vue";
+import Admin from "@/views/Admin.vue";
 
 const routes = [
   {
@@ -89,6 +90,12 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: Admin,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
 ];
 
 const router = createRouter({
@@ -97,12 +104,23 @@ const router = createRouter({
 });
 
 // Route guards
-router.beforeEach((to, from, next) => {
-  const userStore = useUserStore();
-
-  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
+  
+  // Initialize auth store if not already done
+  if (!authStore.initialized) {
+    await authStore.initialize();
+  }
+  
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresGuest = to.matched.some(record => record.meta.guest);
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
+  
+  if (requiresAuth && !authStore.isAuthenticated) {
     next("/auth/login");
-  } else if (to.meta.guest && userStore.isAuthenticated) {
+  } else if (requiresGuest && authStore.isAuthenticated) {
+    next("/dashboard");
+  } else if (requiresAdmin && !authStore.user?.is_admin) {
     next("/dashboard");
   } else {
     next();

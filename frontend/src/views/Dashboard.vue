@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-page">
     <div class="page-header">
-      <h1>Dashboard</h1>
+      <h1>{{ $t('dashboard.title') }}</h1>
       <div class="date-display">
         {{ formatDate(new Date()) }}
       </div>
@@ -16,13 +16,14 @@
           </div>
           <div class="stat-content">
             <h3>{{ todaysCalories }}</h3>
-            <p>Calories Today</p>
+            <p>{{ $t('dashboard.todaysCalories') }}</p>
             <div class="stat-progress">
               <div 
                 class="progress-bar"
-                :style="{ width: Math.min(100, (todaysCalories / targetCalories) * 100) + '%' }"
+                :style="{ width: Math.min(100, (todaysCalories / userTargets.calories) * 100) + '%' }"
               ></div>
             </div>
+            <small class="target-text">{{ $t('dashboard.goal') }}: {{ userTargets.calories }}</small>
           </div>
         </div>
         
@@ -32,7 +33,7 @@
           </div>
           <div class="stat-content">
             <h3>{{ currentCaffeine }}mg</h3>
-            <p>Current Caffeine</p>
+            <p>{{ $t('dashboard.currentCaffeine') }}</p>
             <div class="caffeine-status" :class="getCaffeineStatus(currentCaffeine)">
               {{ getCaffeineStatusText(currentCaffeine) }}
             </div>
@@ -45,9 +46,9 @@
           </div>
           <div class="stat-content">
             <h3>{{ trackingStreak }}</h3>
-            <p>Day Streak</p>
+            <p>{{ $t('dashboard.dayStreak') }}</p>
             <div class="streak-info">
-              Keep it up!
+              {{ $t('dashboard.keepItUp') }}
             </div>
           </div>
         </div>
@@ -58,13 +59,14 @@
           </div>
           <div class="stat-content">
             <h3>{{ todaysProtein }}g</h3>
-            <p>Protein Today</p>
+            <p>{{ $t('dashboard.proteinToday') }}</p>
             <div class="stat-progress">
               <div 
                 class="progress-bar protein"
-                :style="{ width: Math.min(100, (todaysProtein / targetProtein) * 100) + '%' }"
+                :style="{ width: Math.min(100, (todaysProtein / userTargets.protein) * 100) + '%' }"
               ></div>
             </div>
+            <small class="target-text">{{ $t('dashboard.goal') }}: {{ userTargets.protein }}g</small>
           </div>
         </div>
       </div>
@@ -72,25 +74,25 @@
       <!-- Quick Actions -->
       <div class="card">
         <div class="card-header">
-          <h3>Quick Actions</h3>
+          <h3>{{ $t('dashboard.quickActions') }}</h3>
         </div>
         <div class="card-body">
           <div class="quick-actions">
             <router-link to="/nutrition/add-meal" class="action-btn">
               <Icon name="plus" size="20" />
-              <span>Add Meal</span>
+              <span>{{ $t('dashboard.addMeal') }}</span>
             </router-link>
             <router-link to="/caffeine/add" class="action-btn">
               <Icon name="coffee" size="20" />
-              <span>Log Caffeine</span>
+              <span>{{ $t('dashboard.logCaffeine') }}</span>
             </router-link>
             <router-link to="/nutrition/scan" class="action-btn">
               <Icon name="camera" size="20" />
-              <span>Scan Barcode</span>
+              <span>{{ $t('dashboard.scanBarcode') }}</span>
             </router-link>
             <router-link to="/reports" class="action-btn">
               <Icon name="trending-up" size="20" />
-              <span>View Reports</span>
+              <span>{{ $t('dashboard.viewReports') }}</span>
             </router-link>
           </div>
         </div>
@@ -99,8 +101,8 @@
       <!-- Recent Activity -->
       <div class="card">
         <div class="card-header">
-          <h3>Recent Activity</h3>
-          <router-link to="/nutrition" class="view-all-link">View All</router-link>
+          <h3>{{ $t('dashboard.recentActivity') }}</h3>
+          <router-link to="/nutrition" class="view-all-link">{{ $t('common.viewAll') }}</router-link>
         </div>
         <div class="card-body">
           <div v-if="recentActivity.length > 0" class="activity-list">
@@ -122,9 +124,9 @@
           
           <div v-else class="empty-activity">
             <Icon name="clock" size="48" />
-            <p>No recent activity</p>
+            <p>{{ $t('dashboard.noRecentActivity') }}</p>
             <router-link to="/nutrition/add-meal" class="btn btn-primary btn-sm">
-              Get Started
+              {{ $t('common.getStarted') }}
             </router-link>
           </div>
         </div>
@@ -133,58 +135,58 @@
       <!-- Today's Progress -->
       <div class="card">
         <div class="card-header">
-          <h3>Today's Progress</h3>
+          <h3>{{ $t('dashboard.todaysProgress') }}</h3>
         </div>
         <div class="card-body">
           <div class="progress-grid">
             <div class="progress-item">
               <div class="progress-header">
-                <span>Calories</span>
-                <span>{{ todaysCalories }} / {{ targetCalories }}</span>
+                <span>{{ $t('dashboard.calories') }}</span>
+                <span>{{ todaysCalories }} / {{ userTargets.calories }}</span>
               </div>
               <div class="progress-track">
                 <div 
                   class="progress-fill calories"
-                  :style="{ width: Math.min(100, (todaysCalories / targetCalories) * 100) + '%' }"
+                  :style="{ width: Math.min(100, (todaysCalories / userTargets.calories) * 100) + '%' }"
                 ></div>
               </div>
             </div>
             
             <div class="progress-item">
               <div class="progress-header">
-                <span>Protein</span>
-                <span>{{ todaysProtein }}g / {{ targetProtein }}g</span>
+                <span>{{ $t('dashboard.protein') }}</span>
+                <span>{{ todaysProtein }}g / {{ userTargets.protein }}g</span>
               </div>
               <div class="progress-track">
                 <div 
                   class="progress-fill protein"
-                  :style="{ width: Math.min(100, (todaysProtein / targetProtein) * 100) + '%' }"
+                  :style="{ width: Math.min(100, (todaysProtein / userTargets.protein) * 100) + '%' }"
                 ></div>
               </div>
             </div>
             
             <div class="progress-item">
               <div class="progress-header">
-                <span>Carbs</span>
-                <span>{{ todaysCarbs }}g / {{ targetCarbs }}g</span>
+                <span>{{ $t('dashboard.carbs') }}</span>
+                <span>{{ todaysCarbs }}g / {{ userTargets.carbs }}g</span>
               </div>
               <div class="progress-track">
                 <div 
                   class="progress-fill carbs"
-                  :style="{ width: Math.min(100, (todaysCarbs / targetCarbs) * 100) + '%' }"
+                  :style="{ width: Math.min(100, (todaysCarbs / userTargets.carbs) * 100) + '%' }"
                 ></div>
               </div>
             </div>
             
             <div class="progress-item">
               <div class="progress-header">
-                <span>Fat</span>
-                <span>{{ todaysFat }}g / {{ targetFat }}g</span>
+                <span>{{ $t('dashboard.fat') }}</span>
+                <span>{{ todaysFat }}g / {{ userTargets.fat }}g</span>
               </div>
               <div class="progress-track">
                 <div 
                   class="progress-fill fat"
-                  :style="{ width: Math.min(100, (todaysFat / targetFat) * 100) + '%' }"
+                  :style="{ width: Math.min(100, (todaysFat / userTargets.fat) * 100) + '%' }"
                 ></div>
               </div>
             </div>
@@ -195,25 +197,25 @@
       <!-- Weekly Summary -->
       <div class="card">
         <div class="card-header">
-          <h3>This Week</h3>
+          <h3>{{ $t('dashboard.weeklyOverview') }}</h3>
         </div>
         <div class="card-body">
           <div class="weekly-stats">
             <div class="weekly-stat">
               <div class="stat-value">{{ weeklyStats.avgCalories }}</div>
-              <div class="stat-label">Avg Calories</div>
+              <div class="stat-label">{{ $t('dashboard.avgCalories') }}</div>
             </div>
             <div class="weekly-stat">
               <div class="stat-value">{{ weeklyStats.mealsLogged }}</div>
-              <div class="stat-label">Meals Logged</div>
+              <div class="stat-label">{{ $t('dashboard.mealsLogged') }}</div>
             </div>
             <div class="weekly-stat">
               <div class="stat-value">{{ weeklyStats.avgCaffeine }}mg</div>
-              <div class="stat-label">Avg Caffeine</div>
+              <div class="stat-label">{{ $t('dashboard.avgCaffeine') }}</div>
             </div>
             <div class="weekly-stat">
               <div class="stat-value">{{ weeklyStats.activeDays }}</div>
-              <div class="stat-label">Active Days</div>
+              <div class="stat-label">{{ $t('dashboard.activeDays') }}</div>
             </div>
           </div>
         </div>
@@ -224,10 +226,12 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useToastStore } from '@/stores/toast'
 import Icon from '@/components/ui/Icon.vue'
 import api from '@/services/api'
 
+const { t } = useI18n()
 const toastStore = useToastStore()
 
 const todaysCalories = ref(0)
@@ -237,10 +241,13 @@ const todaysFat = ref(0)
 const currentCaffeine = ref(0)
 const trackingStreak = ref(0)
 
-const targetCalories = ref(2000)
-const targetProtein = ref(150)
-const targetCarbs = ref(250)
-const targetFat = ref(67)
+// User targets from profile
+const userTargets = reactive({
+  calories: 2000,
+  protein: 150,
+  carbs: 250,
+  fat: 67
+})
 
 const recentActivity = ref([])
 
@@ -253,6 +260,15 @@ const weeklyStats = reactive({
 
 const loadDashboardData = async () => {
   try {
+    // Load user profile targets
+    const profileResponse = await api.get('/profile')
+    if (profileResponse.data) {
+      userTargets.calories = profileResponse.data.target_calories || 2000
+      userTargets.protein = profileResponse.data.target_protein_g || 150
+      userTargets.carbs = profileResponse.data.target_carbs_g || 250
+      userTargets.fat = profileResponse.data.target_fat_g || 67
+    }
+
     // Load today's nutrition summary
     const today = new Date().toISOString().split('T')[0]
     const nutritionResponse = await api.get(`/nutrition/summary/${today}`)
@@ -264,30 +280,35 @@ const loadDashboardData = async () => {
     todaysFat.value = Math.round(nutritionData.fat || 0)
     
     // Load current caffeine level
-    const caffeineResponse = await api.get('/caffeine/current-level')
-    currentCaffeine.value = Math.round(caffeineResponse.data.current_level_mg || 0)
+    try {
+      const caffeineResponse = await api.get('/caffeine/current-level')
+      currentCaffeine.value = Math.round(caffeineResponse.data.current_level_mg || 0)
+    } catch (error) {
+      // Caffeine endpoint might not exist yet
+      currentCaffeine.value = 0
+    }
     
     // Load recent activity (mock data for now)
     recentActivity.value = [
       {
         id: 1,
         type: 'nutrition',
-        title: 'Breakfast logged',
-        description: 'Oatmeal with berries - 350 calories',
+        title: t('nutrition.breakfast') + ' ' + t('common.add').toLowerCase(),
+        description: 'Oatmeal with berries - 350 cal',
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
       },
       {
         id: 2,
         type: 'caffeine',
-        title: 'Coffee consumed',
+        title: t('caffeine.coffee') + ' ' + t('common.add').toLowerCase(),
         description: 'Large coffee - 95mg caffeine',
         timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
       },
       {
         id: 3,
         type: 'nutrition',
-        title: 'Snack logged',
-        description: 'Apple with peanut butter - 180 calories',
+        title: t('nutrition.snack') + ' ' + t('common.add').toLowerCase(),
+        description: 'Apple with peanut butter - 180 cal',
         timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
       }
     ]
@@ -304,12 +325,12 @@ const loadDashboardData = async () => {
     
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
-    toastStore.error('Failed to load dashboard data')
+    toastStore.error(t('errors.unknownError'))
   }
 }
 
 const formatDate = (date) => {
-  return date.toLocaleDateString('en-US', { 
+  return date.toLocaleDateString(getCurrentLocale(), { 
     weekday: 'long', 
     year: 'numeric', 
     month: 'long', 
@@ -317,18 +338,22 @@ const formatDate = (date) => {
   })
 }
 
+const getCurrentLocale = () => {
+  return localStorage.getItem('mybiote-locale') || 'de'
+}
+
 const formatTimeAgo = (timestamp) => {
   const now = new Date()
   const time = new Date(timestamp)
   const diffHours = Math.floor((now - time) / (1000 * 60 * 60))
   
-  if (diffHours < 1) return 'Just now'
-  if (diffHours === 1) return '1 hour ago'
-  if (diffHours < 24) return `${diffHours} hours ago`
+  if (diffHours < 1) return t('time.now')
+  if (diffHours === 1) return t('time.hourAgo')
+  if (diffHours < 24) return t('time.hoursAgo', { count: diffHours })
   
   const diffDays = Math.floor(diffHours / 24)
-  if (diffDays === 1) return '1 day ago'
-  return `${diffDays} days ago`
+  if (diffDays === 1) return t('time.dayAgo')
+  return t('time.daysAgo', { count: diffDays })
 }
 
 const getCaffeineStatus = (level) => {
@@ -339,10 +364,10 @@ const getCaffeineStatus = (level) => {
 }
 
 const getCaffeineStatusText = (level) => {
-  if (level < 50) return 'Low'
-  if (level < 100) return 'Moderate'
-  if (level < 200) return 'High'
-  return 'Very High'
+  if (level < 50) return t('caffeine.low')
+  if (level < 100) return t('caffeine.moderate')
+  if (level < 200) return t('caffeine.high')
+  return t('caffeine.veryHigh')
 }
 
 const getActivityIcon = (type) => {
@@ -451,6 +476,13 @@ onMounted(() => {
     margin: 0 0 var(--space-sm) 0;
     color: var(--text-secondary);
     font-size: 0.875rem;
+  }
+  
+  .target-text {
+    display: block;
+    margin-top: var(--space-xs);
+    color: var(--text-muted);
+    font-size: 0.75rem;
   }
 }
 

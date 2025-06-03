@@ -5,7 +5,7 @@
       <div class="navbar-brand">
         <router-link to="/dashboard" class="brand-link">
           <div class="brand-icon">
-            <Icon name="activity" size="24" />
+            <Icon name="home" size="24" />
           </div>
           <span class="brand-text">MyBioTracker</span>
         </router-link>
@@ -29,7 +29,7 @@
         </router-link>
         
         <router-link to="/reports" class="nav-link">
-          <Icon name="bar-chart" size="18" />
+          <Icon name="chart-line" size="18" />
           <span>Reports</span>
         </router-link>
       </div>
@@ -37,9 +37,7 @@
       <!-- Right Side Actions -->
       <div class="navbar-actions">
         <!-- Theme Toggle -->
-        <button @click="themeStore.toggleTheme()" class="theme-toggle">
-          <Icon :name="themeStore.darkMode ? 'sun' : 'moon'" size="18" />
-        </button>
+        <ThemeToggle />
 
         <!-- User Dropdown -->
         <div class="user-dropdown" ref="dropdownRef">
@@ -47,7 +45,7 @@
             <div class="user-avatar">
               {{ userInitials }}
             </div>
-            <Icon name="chevron-down" size="16" :class="{ 'rotate': showDropdown }" />
+            <Icon name="plus" size="16" :class="{ 'rotate': showDropdown }" />
           </button>
 
           <div v-if="showDropdown" class="dropdown-menu">
@@ -78,7 +76,7 @@
             <div class="dropdown-divider"></div>
 
             <button @click="handleLogout" class="dropdown-item logout">
-              <Icon name="log-out" size="16" />
+              <Icon name="logout" size="16" />
               <span>Logout</span>
             </button>
           </div>
@@ -86,7 +84,7 @@
 
         <!-- Mobile Menu Toggle -->
         <button @click="toggleMobileMenu" class="mobile-menu-toggle">
-          <Icon :name="showMobileMenu ? 'x' : 'menu'" size="20" />
+          <Icon :name="showMobileMenu ? 'plus' : 'plus'" size="20" />
         </button>
       </div>
     </div>
@@ -109,11 +107,17 @@
       </router-link>
       
       <router-link to="/reports" class="mobile-nav-link" @click="closeMobileMenu">
-        <Icon name="bar-chart" size="18" />
+        <Icon name="chart-line" size="18" />
         <span>Reports</span>
       </router-link>
 
       <div class="mobile-nav-divider"></div>
+
+      <!-- Theme Toggle for Mobile -->
+      <div class="mobile-theme-toggle">
+        <ThemeToggle />
+        <span>Dark Mode</span>
+      </div>
 
       <router-link to="/profile" class="mobile-nav-link" @click="closeMobileMenu">
         <Icon name="user" size="18" />
@@ -138,6 +142,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import Icon from '@/components/ui/Icon.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
@@ -472,6 +477,21 @@ onUnmounted(() => {
   height: 1px;
   background: var(--border);
   margin: var(--space-md) 0;
+}
+
+.mobile-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  
+  &:hover {
+    background: var(--bg-tertiary);
+  }
 }
 
 @keyframes fadeIn {

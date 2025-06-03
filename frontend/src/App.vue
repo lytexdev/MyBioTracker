@@ -7,13 +7,16 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import Toast from '@/components/ui/Toast.vue'
 
-const userStore = useUserStore()
+const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 onMounted(() => {
-  userStore.initializeAuth()
+  themeStore.initializeTheme()
+  authStore.checkAuth()
 })
 </script>
 

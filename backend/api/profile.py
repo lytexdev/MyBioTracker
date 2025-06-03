@@ -10,6 +10,7 @@ from schemas.profile import ProfileCreate, ProfileUpdate, ProfileResponse
 
 router = APIRouter()
 
+@router.get("", response_model=ProfileResponse)
 @router.get("/", response_model=ProfileResponse)
 async def get_profile(
     current_user: User = Depends(get_current_user),
@@ -30,6 +31,7 @@ async def get_profile(
     
     return ProfileResponse.model_validate(profile)
 
+@router.post("", response_model=ProfileResponse)
 @router.post("/", response_model=ProfileResponse)
 async def create_or_update_profile(
     profile_data: ProfileCreate,
@@ -62,6 +64,7 @@ async def create_or_update_profile(
     
     return ProfileResponse.model_validate(profile)
 
+@router.put("", response_model=ProfileResponse)
 @router.put("/", response_model=ProfileResponse)
 async def update_profile(
     profile_data: ProfileUpdate,

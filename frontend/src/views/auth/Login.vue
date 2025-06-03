@@ -104,12 +104,12 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import Icon from '@/components/ui/Icon.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const toastStore = useToastStore()
 
 const loading = ref(false)
@@ -125,25 +125,22 @@ const handleLogin = async () => {
   try {
     loading.value = true
     
-    await userStore.login({
+    const success = await authStore.login({
       email: loginForm.email,
       password: loginForm.password,
       remember: loginForm.remember
     })
     
-    toastStore.success('Welcome back!')
-    router.push('/dashboard')
+    if (success) {
+      toastStore.success($t('auth.loginSuccessful'))
+      router.push('/dashboard')
+    } else {
+      toastStore.error(authStore.error || $t('auth.invalidCredentials'))
+    }
     
   } catch (error) {
     console.error('Login failed:', error)
-    
-    if (error.response?.status === 401) {
-      toastStore.error('Invalid email or password')
-    } else if (error.response?.status === 429) {
-      toastStore.error('Too many login attempts. Please try again later.')
-    } else {
-      toastStore.error('Login failed. Please try again.')
-    }
+    toastStore.error('Login failed. Please try again.')
   } finally {
     loading.value = false
   }
@@ -154,14 +151,18 @@ const loginWithDemo = async () => {
     loading.value = true
     
     // Use demo credentials
-    await userStore.login({
+    const success = await authStore.login({
       email: 'demo@mybiotracker.com',
       password: 'demo123',
       remember: false
     })
     
-    toastStore.success('Welcome to the demo!')
-    router.push('/dashboard')
+    if (success) {
+      toastStore.success('Welcome to the demo!')
+      router.push('/dashboard')
+    } else {
+      toastStore.error('Demo login failed. Please try manual login.')
+    }
     
   } catch (error) {
     console.error('Demo login failed:', error)
@@ -175,11 +176,41 @@ const loginWithDemo = async () => {
 <style lang="scss" scoped>
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-lg);
+  
+  // Subtle pattern overlay
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  // Fade in animation für die gesamte Seite
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-container {
@@ -188,22 +219,80 @@ const loginWithDemo = async () => {
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
+  
+  // Staggered animation für Container-Elemente
+  > * {
+    animation: slideInUp 0.6s ease-out backwards;
+  }
+  
+  > *:nth-child(1) { animation-delay: 0.1s; }
+  > *:nth-child(2) { animation-delay: 0.2s; }
+  > *:nth-child(3) { animation-delay: 0.3s; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-header {
   text-align: center;
-  color: white;
+  color: var(--text-primary);
+  position: relative;
+  z-index: 1;
   
   h1 {
     margin: 0 0 var(--space-sm) 0;
     font-size: 2.5rem;
     font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: bounceIn 0.8s ease-out 0.2s backwards;
   }
   
   p {
     margin: 0;
-    opacity: 0.9;
+    color: var(--text-secondary);
     font-size: 1.125rem;
+    animation: fadeInUp 0.6s ease-out 0.4s backwards;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -214,6 +303,12 @@ const loginWithDemo = async () => {
   padding: var(--space-2xl);
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .login-form {
@@ -222,11 +317,31 @@ const loginWithDemo = async () => {
     text-align: center;
     color: var(--text-primary);
     font-size: 1.5rem;
+    animation: fadeIn 0.6s ease-out 0.5s backwards;
   }
 }
 
 .form-group {
   margin-bottom: var(--space-lg);
+  
+  // Form field animations
+  .form-input {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.15);
+      border-color: var(--primary);
+    }
+  }
+  
+  .form-label {
+    transition: color 0.3s ease;
+  }
+  
+  &:focus-within .form-label {
+    color: var(--primary);
+  }
 }
 
 .password-input {
@@ -247,11 +362,16 @@ const loginWithDemo = async () => {
     cursor: pointer;
     padding: var(--space-xs);
     border-radius: var(--radius);
-    transition: var(--transition);
+    transition: all 0.3s ease;
     
     &:hover {
       color: var(--text-primary);
       background: var(--bg-secondary);
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    &:active {
+      transform: translateY(-50%) scale(0.95);
     }
   }
 }
@@ -270,6 +390,11 @@ const loginWithDemo = async () => {
   cursor: pointer;
   font-size: 0.875rem;
   color: var(--text-secondary);
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: var(--text-primary);
+  }
   
   .checkbox-input {
     display: none;
@@ -281,7 +406,7 @@ const loginWithDemo = async () => {
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     position: relative;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     &::after {
       content: '';
@@ -292,18 +417,18 @@ const loginWithDemo = async () => {
       height: 8px;
       border: solid white;
       border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-      opacity: 0;
-      transition: var(--transition);
+      transform: rotate(45deg) scale(0);
+      transition: transform 0.2s ease-out 0.1s;
     }
   }
   
   .checkbox-input:checked + .checkbox-custom {
     background: var(--primary);
     border-color: var(--primary);
+    transform: scale(1.1);
     
     &::after {
-      opacity: 1;
+      transform: rotate(45deg) scale(1);
     }
   }
 }
@@ -312,16 +437,43 @@ const loginWithDemo = async () => {
   color: var(--primary);
   text-decoration: none;
   font-size: 0.875rem;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+  position: relative;
   
-  &:hover {
-    text-decoration: underline;
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background: var(--primary);
+    transition: width 0.3s ease;
+  }
+  
+  &:hover::after {
+    width: 100%;
   }
 }
 
 .btn-full {
   width: 100%;
   justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.25);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }
 
 .divider {
@@ -337,6 +489,7 @@ const loginWithDemo = async () => {
     right: 0;
     height: 1px;
     background: var(--border);
+    animation: expandWidth 0.6s ease-out 0.8s backwards;
   }
   
   span {
@@ -344,6 +497,16 @@ const loginWithDemo = async () => {
     padding: 0 var(--space-lg);
     color: var(--text-muted);
     font-size: 0.875rem;
+    animation: fadeIn 0.4s ease-out 1s backwards;
+  }
+}
+
+@keyframes expandWidth {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -357,20 +520,40 @@ const loginWithDemo = async () => {
   gap: var(--space-md);
   opacity: 0.6;
   cursor: not-allowed;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+  }
 }
 
 .signup-link {
   text-align: center;
   color: var(--text-secondary);
   font-size: 0.875rem;
+  animation: fadeIn 0.6s ease-out 1.2s backwards;
   
   a {
     color: var(--primary);
     text-decoration: none;
     font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
     
-    &:hover {
-      text-decoration: underline;
+    &::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+    
+    &:hover::after {
+      width: 100%;
     }
   }
 }
@@ -381,12 +564,18 @@ const loginWithDemo = async () => {
   h3 {
     margin: 0 0 var(--space-sm) 0;
     color: var(--text-primary);
+    animation: fadeIn 0.6s ease-out 1s backwards;
   }
   
   p {
     margin: 0 0 var(--space-lg) 0;
     color: var(--text-secondary);
     font-size: 0.875rem;
+    animation: fadeIn 0.6s ease-out 1.1s backwards;
+  }
+  
+  button {
+    animation: fadeIn 0.6s ease-out 1.2s backwards;
   }
 }
 
@@ -399,22 +588,51 @@ const loginWithDemo = async () => {
   to { transform: rotate(360deg); }
 }
 
-/* Eye icons for password toggle */
-.icon-eye::after,
-.icon-eye-off::after {
-  content: '';
-  width: 18px;
-  height: 18px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+// Form focus ring animation
+.form-input {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--radius);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  }
+  
+  &:focus::after {
+    opacity: 1;
+  }
 }
 
-.icon-eye::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
-}
-
-.icon-eye-off::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'/%3E%3Cline x1='1' y1='1' x2='23' y2='23'/%3E%3C/svg%3E");
+// Hover effects für interaktive Elemente
+button, .checkbox-label, .forgot-link, .signup-link a {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.5s ease;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  
+  &:active::before {
+    width: 200px;
+    height: 200px;
+  }
 }
 </style>

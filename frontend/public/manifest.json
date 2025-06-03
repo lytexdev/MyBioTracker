@@ -1,0 +1,16 @@
+{
+  "name": "MyBioTracker",
+  "short_name": "MyBioTracker",
+  "description": "Privacy-focused nutrition and biohacking tracker",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#22c55e",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+} 
